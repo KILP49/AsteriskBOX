@@ -113,11 +113,17 @@ async function main() {
   // 6. write README
   fs.writeFileSync(path.join(OUT, 'README.txt'), README_TEXT, 'utf8');
 
-  // 7. zip
+  // 7. zip — use PowerShell Compress-Archive on Windows, zip on others
   console.log('creating zip ...');
   const zipName = path.join(ROOT, 'dist', 'AsteriskBOX-Windows.zip');
   if (fs.existsSync(zipName)) fs.unlinkSync(zipName);
-  execFileSync('zip', ['-r', '-q', zipName, 'AsteriskBOX-win32-x64'], { cwd: path.join(ROOT, 'dist'), stdio: 'inherit' });
+  if (process.platform === 'win32') {
+    const srcDir = path.join(ROOT, 'dist', 'AsteriskBOX-win32-x64');
+    const psCmd = `Compress-Archive -Path '${srcDir.replace(/'/g, "''")}\\*' -DestinationPath '${zipName.replace(/'/g, "''")}' -Force`;
+    execFileSync('powershell', ['-NoProfile', '-Command', psCmd], { stdio: 'inherit' });
+  } else {
+    execFileSync('zip', ['-r', '-q', zipName, 'AsteriskBOX-win32-x64'], { cwd: path.join(ROOT, 'dist'), stdio: 'inherit' });
+  }
 
   console.log('done:', OUT);
   console.log('zip:', zipName);
