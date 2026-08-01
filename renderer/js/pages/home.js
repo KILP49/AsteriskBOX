@@ -73,7 +73,7 @@ Pages.home = {
       el('div', { class: 'card-title', text: t('home_network_activity') }),
       el('div', { class: 'muted small', text: `${t('monitor_speed_per_second', fmtBytes(App.traffic.up))} / ${t('monitor_speed_per_second', fmtBytes(App.traffic.down))}` }),
     ]);
-    const canvasWrap = el('div', { style: 'flex:1;position:relative' });
+    const canvasWrap = el('div', { style: 'flex:1;position:relative;min-height:0' });
     const canvas = el('canvas', { class: 'chart' });
     canvasWrap.appendChild(canvas);
     if (!App.status.running || App.traffic.samples.length < 2) {

@@ -53,6 +53,7 @@ const DEFAULT_SETTINGS = {
   routeGoogleProxy: true,     // Google 走代理 (geosite-google)
   routeBlockAdsDns: false,    // 广告拦截 (DNS rule set)
   routeBlockUdp443: true,     // 屏蔽 UDP 443
+  routeRules: [],          // 自定义路由规则 [{type, payload, action: proxy|direct|block}]
   // 系统
   autoStart: false,           // 开机自启
   minimizeToTray: true,

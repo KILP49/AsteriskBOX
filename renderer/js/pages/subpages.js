@@ -330,27 +330,83 @@ App.routes.routing_settings = {
 };
 
 /* ---------------- Routing rules viewer ---------------- */
+/* ---------------- Routing rules (editable) ---------------- */
 App.routes.routing_rules = {
   title: () => t('routing_view_rules'),
+  actions(bar) {
+    bar.appendChild(el('button', { class: 'icon-btn msr', text: 'add', title: t('routing_rule_add'), onclick: () => this.editRule() }));
+  },
   render(container) {
     const page = el('div', { class: 'page' });
     container.appendChild(page);
-    const loading = el('div', { class: 'empty', text: t('monitor_loading') });
-    page.appendChild(loading);
-    api().call('getRules').then((data) => {
-      page.innerHTML = '';
-      if (!data || !data.rules || !data.rules.length) {
-        page.appendChild(el('div', { class: 'empty', text: t('monitor_data_unavailable') }));
-        return;
-      }
-      const card = el('div', { class: 'card', style: 'padding:8px 0' });
-      data.rules.forEach((r) => {
-        card.appendChild(el('div', { class: 'conn-row' }, [
-          el('div', { class: 'c-rule', style: 'background:var(--m3-primary-container);color:var(--m3-on-primary-container)', text: r.type }),
-          el('div', { class: 'c-main' }, [el('div', { class: 'c-sub', text: r.payload || '' })]),
+    const rules = App.settings.routeRules || [];
+    const card = el('div', { class: 'card', style: 'padding:8px 0' });
+    card.appendChild(el('div', { class: 'card-title', style: 'padding:10px 16px 6px', text: t('routing_view_rules') }));
+    if (!rules.length) {
+      card.appendChild(el('div', { class: 'empty', text: t('routing_rules_empty') }));
+    } else {
+      rules.forEach((r, i) => {
+        card.appendChild(el('div', { class: 'conn-row', style: 'padding:10px 12px' }, [
+          el('div', { class: 'c-rule', style: 'background:var(--m3-primary-container);color:var(--m3-on-primary-container);flex:0 0 auto', text: r.type }),
+          el('div', { class: 'c-main' }, [el('div', { class: 'c-sub', text: r.payload || '', style: 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis' })]),
+          el('div', { class: 'c-rule', style: 'flex:0 0 auto', text: t('routing_action_' + r.action) || r.action }),
+          el('button', { class: 'icon-btn msr', text: 'arrow_upward', style: 'width:30px;height:30px;flex:0 0 30px', title: t('routing_rule_move_up'), onclick: async () => { await this.move(i, -1); } }),
+          el('button', { class: 'icon-btn msr', text: 'arrow_downward', style: 'width:30px;height:30px;flex:0 0 30px', title: t('routing_rule_move_down'), onclick: async () => { await this.move(i, 1); } }),
+          el('button', { class: 'icon-btn msr', text: 'edit', style: 'width:30px;height:30px;flex:0 0 30px', title: t('common_edit'), onclick: () => this.editRule(r, i) }),
+          el('button', { class: 'icon-btn msr', text: 'delete', style: 'width:30px;height:30px;flex:0 0 30px', title: t('common_delete'), onclick: async () => { await this.remove(i); } }),
         ]));
       });
-      page.appendChild(card);
+    }
+    page.appendChild(card);
+    page.appendChild(el('div', { class: 'muted small', style: 'padding:0 4px', text: t('routing_rule_hint') || '规则按顺序匹配，可上移/下移调整优先级' }));
+  },
+  async move(i, delta) {
+    const rules = [...(App.settings.routeRules || [])];
+    const j = i + delta;
+    if (j < 0 || j >= rules.length) return;
+    [rules[i], rules[j]] = [rules[j], rules[i]];
+    await this.save(rules);
+  },
+  async remove(i) {
+    const rules = [...(App.settings.routeRules || [])];
+    rules.splice(i, 1);
+    await this.save(rules);
+  },
+  async save(rules) {
+    const a = api();
+    await a.call('updateSettings', { routeRules: rules });
+    App.settings = await a.call('getSettings');
+    render();
+  },
+  editRule(rule, idx) {
+    const isNew = !rule;
+    const type = el('select');
+    ['domain', 'domain_suffix', 'domain_keyword', 'domain_regex', 'ip_cidr', 'source_ip_cidr', 'port', 'source_port', 'process_name'].forEach((v) => {
+      const o = el('option', { value: v, text: v });
+      if (rule && rule.type === v) o.selected = true;
+      if (!rule && v === 'domain_suffix') o.selected = true;
+      type.appendChild(o);
+    });
+    const payload = textInput(rule ? rule.payload : '');
+    const action = el('select');
+    [['proxy', t('routing_action_proxy')], ['direct', t('routing_action_direct')], ['block', t('routing_action_block')]].forEach((pair) => {
+      const o = el('option', { value: pair[0], text: pair[1] });
+      if ((rule && rule.action === pair[0]) || (!rule && pair[0] === 'proxy')) o.selected = true;
+      action.appendChild(o);
+    });
+    showSheet(t('routing_rule_edit'), (body) => {
+      body.appendChild(fieldRow(t('routing_rule_type'), type));
+      body.appendChild(fieldRow(t('routing_rule_payload'), payload));
+      body.appendChild(fieldRow(t('routing_rule_action'), action));
+    }, {
+      confirmText: t('common_save'),
+      onConfirm: async () => {
+        if (!payload.value.trim()) { toast(t('routing_rule_payload_empty'), true); return; }
+        const rules = [...(App.settings.routeRules || [])];
+        const item = { type: type.value, payload: payload.value.trim(), action: action.value };
+        if (isNew) rules.push(item); else rules[idx] = item;
+        await this.save(rules);
+      },
     });
   },
 };

@@ -72,6 +72,17 @@ function compile(settings, profile) {
   if (settings.routeBlockUdp443) {
     rules.push({ network: ['udp'], port: 443, action: 'reject' });
   }
+  // user-defined rules (editable in Routing -> rules)
+  (settings.routeRules || []).forEach((r) => {
+    const rule = { type: r.type, payload: r.payload };
+    if (r.action === 'block') {
+      rule.action = 'reject';
+    } else {
+      rule.action = 'route';
+      rule.outbound = r.action === 'direct' ? TAGS.DIRECT : TAGS.GLOBAL;
+    }
+    rules.push(rule);
+  });
   const ruleFinal = groups.length ? groups[0].tag : TAGS.DIRECT;
   rules.push({ clash_mode: 'Rule', action: 'route', outbound: ruleFinal });
 

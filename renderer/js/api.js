@@ -47,6 +47,7 @@ class DemoState {
       ],
       dnsFinal: '__asteriskbox_dns_server_2__', dnsCacheCapacity: '', dnsOptimistic: true, dnsTimeout: '10s',
       routeDirectCn: true, routeGoogleProxy: true, routeBlockAdsDns: false, routeBlockUdp443: true,
+      routeRules: [ { type: 'domain_suffix', payload: 'example.com', action: 'direct' }, { type: 'domain', payload: 'ads.example.org', action: 'block' } ],
       autoStart: false, minimizeToTray: true,
     };
     this.running = true;
