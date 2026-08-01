@@ -3,7 +3,7 @@
 const STRINGS = {
   zh: {
     app_name: 'AsteriskBOX',
-    nav_dashboard: '首页', nav_proxies: '代理', nav_apps: '应用', nav_settings: '设置',
+    nav_dashboard: '首页', nav_proxies: '代理', nav_apps: '连接', nav_settings: '设置',
     home_service_enabled: '服务已启用', home_service_disabled: '服务未启用',
     home_accumulated_upload: '累计上传', home_accumulated_download: '累计下载',
     home_network_activity: '网络活动', home_no_network_activity: '暂无活动',
@@ -77,7 +77,7 @@ const STRINGS = {
     license_title: '第三方许可',
     core_logs_title: '核心日志', logs_live: '实时', logs_paused: '已暂停', logs_pause: '暂停日志流', logs_resume: '继续日志流',
     logs_clear_title: '清空日志？', logs_level_debug: '调试', logs_level_info: '信息', logs_level_warning: '警告', logs_level_error: '错误',
-    logs_export: '导出日志', logs_exported: '日志已导出',
+    logs_export: '导出日志', logs_exported: '日志已导出', logs_empty: '等待日志输出…',
     endpoints_title: '订阅', endpoints_add: '添加订阅', endpoints_url: '订阅地址', endpoints_name: '备注',
     endpoints_update_all: '全部更新', endpoints_delete: '删除订阅', endpoints_fetch_failed: '订阅获取失败',
     endpoints_last_updated: '更新于 {0}', endpoints_never: '从未更新', endpoints_empty: '暂无订阅，点击右上角添加',
@@ -109,7 +109,7 @@ const STRINGS = {
   },
   en: {
     app_name: 'AsteriskBOX',
-    nav_dashboard: 'Home', nav_proxies: 'Proxies', nav_apps: 'Apps', nav_settings: 'Settings',
+    nav_dashboard: 'Home', nav_proxies: 'Proxies', nav_apps: 'Connections', nav_settings: 'Settings',
     home_service_enabled: 'Service enabled', home_service_disabled: 'Service disabled',
     home_accumulated_upload: 'Uploaded', home_accumulated_download: 'Downloaded',
     home_network_activity: 'Network activity', home_no_network_activity: 'No activity yet',
@@ -183,7 +183,7 @@ const STRINGS = {
     license_title: 'Third Party Licenses',
     core_logs_title: 'Core logs', logs_live: 'Live', logs_paused: 'Paused', logs_pause: 'Pause log stream', logs_resume: 'Resume log stream',
     logs_clear_title: 'Clear logs?', logs_level_debug: 'Debug', logs_level_info: 'Info', logs_level_warning: 'Warning', logs_level_error: 'Error',
-    logs_export: 'Export logs', logs_exported: 'Logs exported',
+    logs_export: 'Export logs', logs_exported: 'Logs exported', logs_empty: 'Waiting for logs…',
     endpoints_title: 'Subscriptions', endpoints_add: 'Add subscription', endpoints_url: 'Subscription URL', endpoints_name: 'Remarks',
     endpoints_update_all: 'Update all', endpoints_delete: 'Delete subscription', endpoints_fetch_failed: 'Failed to fetch subscription',
     endpoints_last_updated: 'Updated {0}', endpoints_never: 'Never updated', endpoints_empty: 'No subscriptions yet. Tap + to add one.',

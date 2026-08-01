@@ -138,25 +138,36 @@ Pages.settings = {
     const self = this;
     const running = App.status.running;
     showSheet(t('settings_run_mode'), (body) => {
-      [['tun', t('run_mode_tun')], ['proxy', t('run_mode_proxy')]].forEach(([v, label]) => {
-        body.appendChild(choiceRow(label, App.settings.runMode === v, async () => {
+      const rows = [
+        { v: 'tun', icon: 'wifi_tethering', title: t('run_mode_tun'), sub: '接管全部流量 — 需要管理员权限' },
+        { v: 'proxy', icon: 'public', title: t('run_mode_proxy'), sub: '仅代理 HTTP(S) 流量，无需管理员权限' },
+      ];
+      rows.forEach((r) => {
+        body.appendChild(el('div', { class: 'sec-row', onclick: async () => {
           if (running) {
             showDialog({
               title: t('settings_run_mode'),
               message: '切换运行模式需要重启代理服务。',
               confirmText: t('confirm'),
               onConfirm: async () => {
-                await self.save({ runMode: v });
+                await self.save({ runMode: r.v });
                 const a = api();
                 try { await a.call('restartProxy'); } catch (e) { /* */ }
                 closeSheet();
               },
             });
           } else {
-            await self.save({ runMode: v });
+            await self.save({ runMode: r.v });
             closeSheet();
           }
-        }, v === 'tun' ? t('run_mode_tun') + ' — 需要管理员权限' : null));
+        } }, [
+          el('div', { class: 'row-icon' }, [icon(r.icon)]),
+          el('div', { class: 'row-main' }, [
+            el('div', { class: 'row-title', text: r.title }),
+            el('div', { class: 'row-sub', text: r.sub }),
+          ]),
+          App.settings.runMode === r.v ? el('span', { class: 'msr', style: 'color:var(--m3-primary)', text: 'check_circle' }) : null,
+        ]));
       });
     }, { confirmText: null });
   },

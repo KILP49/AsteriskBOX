@@ -622,6 +622,10 @@ App.routes.core_logs = {
   renderLines() {
     if (!this.view) return;
     const lines = App.logLines || [];
+    if (!lines.length) {
+      this.view.innerHTML = `<div class="log-empty">${esc(t('logs_empty') || 'Waiting for logs…')}</div>`;
+      return;
+    }
     this.view.innerHTML = lines.slice(-500).map((l) => {
       const cls = 'log-line-' + (['debug', 'info', 'warning', 'error'].includes(l.type) ? l.type : 'info');
       return `<div class="${cls}">[${fmtTime(l.ts || Date.now())}] ${esc(l.payload)}</div>`;

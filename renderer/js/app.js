@@ -20,7 +20,7 @@ const App = {
   navItems: [
     { id: 'home', labelKey: 'nav_dashboard', icon: 'home' },
     { id: 'proxies', labelKey: 'nav_proxies', icon: 'alt_route' },
-    { id: 'apps', labelKey: 'nav_apps', icon: 'apps' },
+    { id: 'apps', labelKey: 'nav_apps', icon: 'swap_calls' },
     { id: 'settings', labelKey: 'nav_settings', icon: 'settings' },
   ],
   tick: null,

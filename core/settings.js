@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS = {
   // 外观
   colorMode: 0,        // 0=跟随系统 1=浅色 2=深色
   seedIndex: 0,        // 强调色 0=默认 1=蓝 2=绿 3=紫 4=黄 5=橙 6=玫红 7=青
-  language: 0,         // 0=跟随系统 1=English 2=简体中文
+  language: 2,         // 0=跟随系统 1=English 2=简体中文
   // 运行
   runMode: 'tun',      // tun=虚拟网卡(推荐) proxy=系统代理
   autoConnect: false,  // 启动后自动开启代理

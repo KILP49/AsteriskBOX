@@ -153,7 +153,6 @@ async function changeMode(mode, segEl) {
   }
   try {
     await a.call('setMode', mode);
-    toast(t('sing_box_mode_' + mode.toLowerCase()));
   } catch (e) {
     toast(t('home_mode_change_failed') || '切换模式失败', true);
     App.runtime.mode = mode; // still keep it
