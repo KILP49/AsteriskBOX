@@ -113,15 +113,20 @@ async function main() {
   // 6. write README
   fs.writeFileSync(path.join(OUT, 'README.txt'), README_TEXT, 'utf8');
 
-  // 7. zip — use 7z on Windows (Compress-Archive has file-lock issues), zip on others
+  // 7. zip — copy to temp dir first to avoid file-lock issues on Windows
   console.log('creating zip ...');
   const zipName = path.join(ROOT, 'dist', 'AsteriskBOX-Windows.zip');
   if (fs.existsSync(zipName)) fs.unlinkSync(zipName);
-  // small delay to ensure all file handles are released
   if (process.platform === 'win32') {
+    // Copy to a temp dir, then zip from there to avoid lock issues with app.asar
+    const tmpZipDir = path.join(os.tmpdir(), 'abox-zip-staging');
+    if (fs.existsSync(tmpZipDir)) fs.rmSync(tmpZipDir, { recursive: true, force: true });
+    fs.mkdirSync(tmpZipDir, { recursive: true });
+    fs.cpSync(OUT, path.join(tmpZipDir, 'AsteriskBOX-win32-x64'), { recursive: true });
     execFileSync('7z', ['a', '-tzip', zipName, 'AsteriskBOX-win32-x64'], {
-      cwd: path.join(ROOT, 'dist'), stdio: 'inherit'
+      cwd: tmpZipDir, stdio: 'inherit'
     });
+    fs.rmSync(tmpZipDir, { recursive: true, force: true });
   } else {
     execFileSync('zip', ['-r', '-q', zipName, 'AsteriskBOX-win32-x64'], { cwd: path.join(ROOT, 'dist'), stdio: 'inherit' });
   }
