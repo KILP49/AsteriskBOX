@@ -126,7 +126,7 @@ function compile(settings, profile) {
     clash_api: {
       external_controller: `127.0.0.1:${settings.clashApiPort}`,
       secret,
-      default_mode: 'Rule',
+      default_mode: settings.lastMode || 'Rule',
     },
   };
 

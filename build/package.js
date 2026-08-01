@@ -47,6 +47,10 @@ async function main() {
   for (const d of keepDirs) {
     fs.cpSync(path.join(ROOT, d), path.join(staging, d), { recursive: true });
   }
+  // copy icon into asar so __dirname/build/icon.png works at runtime
+  fs.mkdirSync(path.join(staging, 'build'), { recursive: true });
+  const iconPng = path.join(ROOT, 'build', 'icon.png');
+  if (fs.existsSync(iconPng)) fs.copyFileSync(iconPng, path.join(staging, 'build', 'icon.png'));
   // copy production node_modules (exclude devDependencies)
   const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
   const prodDeps = Object.keys(pkg.dependencies || {});

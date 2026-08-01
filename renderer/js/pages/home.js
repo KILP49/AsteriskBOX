@@ -146,12 +146,16 @@ Pages.home = {
 async function changeMode(mode, segEl) {
   const a = api();
   if (mode === App.runtime.mode) return;
+  App.runtime.mode = mode;  // optimistically update
+  if (segEl) {
+    const labels = { Rule: t('sing_box_mode_rule'), Global: t('sing_box_mode_global'), Direct: t('sing_box_mode_direct') };
+    segEl.querySelectorAll('.seg-item').forEach((b) => b.classList.toggle('selected', b.textContent === labels[mode]));
+  }
   try {
     await a.call('setMode', mode);
-    App.runtime.mode = mode;
-    segEl.querySelectorAll('.seg-item').forEach((b, i) => b.classList.toggle('selected', b.textContent === (mode === 'Rule' ? t('sing_box_mode_rule') : mode === 'Global' ? t('sing_box_mode_global') : t('sing_box_mode_direct'))));
     toast(t('sing_box_mode_' + mode.toLowerCase()));
   } catch (e) {
     toast(t('home_mode_change_failed') || '切换模式失败', true);
+    App.runtime.mode = mode; // still keep it
   }
 }

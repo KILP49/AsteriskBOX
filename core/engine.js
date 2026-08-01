@@ -46,6 +46,12 @@ class Engine {
   async start(settings, profile) {
     if (this.running) return { ok: true, already: true };
     this._stopRequested = false;
+
+    // check if we have any outbounds to use
+    if (!profile.outbounds || profile.outbounds.length === 0) {
+      return { ok: false, error: '没有可用节点', hint: '请先在 设置 → 订阅 中添加订阅地址并导入节点。' };
+    }
+
     const config = compile(settings, profile);
     const cfgPath = configPath();
     fs.mkdirSync(path.dirname(cfgPath), { recursive: true });

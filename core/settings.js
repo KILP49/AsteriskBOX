@@ -56,6 +56,7 @@ const DEFAULT_SETTINGS = {
   // 系统
   autoStart: false,           // 开机自启
   minimizeToTray: true,
+  lastMode: 'Rule',           // 上次使用的模式 (Rule/Global/Direct)
 };
 
 function load() {

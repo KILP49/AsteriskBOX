@@ -247,6 +247,11 @@ function render() {
   renderTopbar();
   const content = document.getElementById('content');
   content.scrollTop = 0;
+  // adjust topbar alignment: wide pages use full width, normal pages center
+  const topbar = document.getElementById('topbar');
+  const isWide = (App.stack.length === 0 && App.page === 'proxies') ||
+    (App.stack.length && App.routes[App.stack[App.stack.length - 1].id] && App.routes[App.stack[App.stack.length - 1].id].wide);
+  topbar.classList.toggle('wide', !!isWide);
   if (App.stack.length) {
     const route = App.routes[App.stack[App.stack.length - 1].id];
     if (route) content.innerHTML = '';

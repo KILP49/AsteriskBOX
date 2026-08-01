@@ -79,10 +79,15 @@ body.narrow #navbar { display: flex; height: var(--nb-h); flex: 0 0 var(--nb-h);
 .icon-btn { width: 40px; height: 40px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border: none; background: transparent; color: var(--m3-on-surface-variant); font-size: 22px; }
 .icon-btn:hover { background: var(--m3-surface-container-high); }
 .icon-btn:active { background: var(--m3-surface-container-highest); }
+button { font-family: var(--font-sans); cursor: pointer; }
 
 /* ---------------- Content & pages ---------------- */
 .page { max-width: var(--content-max); margin: 0 auto; padding: 8px 16px 32px; display: flex; flex-direction: column; gap: 16px; }
 .page.wide-page { max-width: 1280px; }
+/* Match topbar alignment to page content max-width */
+#topbar { padding-left: max(16px, calc((100% - var(--content-max)) / 2 + 16px)); padding-right: max(16px, calc((100% - var(--content-max)) / 2 + 16px)); }
+body.narrow #topbar { padding-left: 16px; padding-right: 16px; }
+.wide-page ~ #topbar, #topbar.wide { padding-left: 16px; padding-right: 16px; }
 .list { display: flex; flex-direction: column; gap: 16px; }
 .row-2 { display: flex; gap: 12px; }
 .row-2 > * { flex: 1; }

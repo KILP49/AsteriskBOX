@@ -255,8 +255,12 @@ function registerIpc() {
   });
 
   ipcMain.handle('setMode', async (e, mode) => {
-    if (!engine || !engine.api) throw new Error('not running');
-    await engine.api.setMode(mode);
+    // store mode even if not running, apply on start
+    if (engine && engine.api) {
+      try { await engine.api.setMode(mode); } catch (err) { /* best effort */ }
+    }
+    // persist mode in settings so it survives restarts
+    settingsModule.update({ lastMode: mode });
     return { ok: true };
   });
 
