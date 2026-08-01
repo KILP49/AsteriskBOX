@@ -33,10 +33,19 @@ function applyTheme() {
   const theme = window.THEMES[s.seedIndex] || window.THEMES[0];
   const scheme = theme[mode];
   const root = document.documentElement;
+  // Windows-native UI: neutral surfaces come from CSS; only accent/status colors are theme-driven
+  const ACCENT_KEYS = new Set([
+    'primary', 'onPrimary', 'primaryContainer', 'onPrimaryContainer',
+    'secondary', 'onSecondary', 'secondaryContainer', 'onSecondaryContainer',
+    'tertiary', 'onTertiary', 'tertiaryContainer', 'onTertiaryContainer',
+    'error', 'onError', 'errorContainer', 'onErrorContainer',
+    'inverseSurface', 'inverseOnSurface', 'inversePrimary',
+  ]);
   for (const [k, v] of Object.entries(scheme)) {
-    root.style.setProperty('--m3-' + k.replace(/([A-Z])/g, '-$1').toLowerCase(), '#' + v);
+    if (ACCENT_KEYS.has(k)) {
+      root.style.setProperty('--m3-' + k.replace(/([A-Z])/g, '-$1').toLowerCase(), '#' + v);
+    }
   }
-  root.style.setProperty('--m3-surface', '#' + (mode === 'dark' ? scheme.surface : scheme.surface));
   document.body.dataset.theme = mode;
 }
 

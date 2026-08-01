@@ -41,7 +41,7 @@ function createWindow() {
     title: 'AsteriskBOX',
     icon: path.join(__dirname, 'build', 'icon.png'),
     autoHideMenuBar: true,
-    backgroundColor: '#1c1b1e',
+    backgroundColor: '#f3f3f3',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
