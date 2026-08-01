@@ -34,7 +34,7 @@ function applyTheme() {
   const scheme = theme[mode];
   const root = document.documentElement;
   for (const [k, v] of Object.entries(scheme)) {
-    root.style.setProperty('--m3-' + k, '#' + v);
+    root.style.setProperty('--m3-' + k.replace(/([A-Z])/g, '-$1').toLowerCase(), '#' + v);
   }
   root.style.setProperty('--m3-surface', '#' + (mode === 'dark' ? scheme.surface : scheme.surface));
   document.body.dataset.theme = mode;
