@@ -273,7 +273,6 @@ App.routes.routing_settings = {
       this.switchRow('google', t('routing_google_proxy'), s.routeGoogleProxy, async (v) => { await this.save({ routeGoogleProxy: v }); }),
       this.switchRow('block', t('routing_block_udp443'), s.routeBlockUdp443, async (v) => { await this.save({ routeBlockUdp443: v }); }),
       this.switchRow('block', t('routing_block_ads_dns') || '广告域名拦截 (DNS)', s.routeBlockAdsDns, async (v) => { await this.save({ routeBlockAdsDns: v }); }),
-      el('div', { class: 'divider' }),
       el('div', { class: 'sec-row', onclick: () => pushRoute('routing_rules') }, [
         el('div', { class: 'row-icon' }, [icon('rule')]),
         el('div', { class: 'row-main' }, [el('div', { class: 'row-title', text: t('routing_view_rules') })]),

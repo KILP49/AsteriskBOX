@@ -26,7 +26,7 @@ Pages.settings = {
       this.row('router', t('settings_run_mode'), s.runMode === 'tun' ? t('run_mode_tun') : t('run_mode_proxy'), () => this.pickRunMode()),
       this.row('network_check', t('settings_tun'), `MTU ${s.tunMtu} · ${s.tunStack} · ${s.tunIpv4}`, () => pushRoute('settings_tun')),
       this.row('lan', t('settings_local_proxy'), `127.0.0.1:${s.localProxyPort}`, () => pushRoute('settings_local')),
-      this.row('speed', t('settings_log_level'), s.coreLogLevel, () => this.pickLogLevel()),
+      this.row('speed', t('settings_log_level'), t('logs_level_' + s.coreLogLevel) || s.coreLogLevel, () => this.pickLogLevel()),
       this.row('radar', t('settings_sniffer'), s.snifferEnabled ? `${s.snifferProtocols.length} · ${s.snifferTimeout}` : t('settings_sniffer_summary_disabled'), () => pushRoute('settings_sniffer')),
     ]));
 
@@ -52,11 +52,8 @@ Pages.settings = {
   section(label, rows) {
     return el('div', { style: 'display:flex;flex-direction:column;gap:8px' }, [
       el('div', { class: 'sec-label', text: label }),
-      el('div', { class: 'sec-card' }, rows.map((r, i) => {
-        const wrap = el('div', {});
-        wrap.appendChild(r);
-        if (i < rows.length - 1) wrap.appendChild(el('div', { class: 'divider' }));
-        return wrap;
+      el('div', { class: 'sec-card' }, rows.map((r) => {
+        return r;
       })),
     ]);
   },
@@ -168,7 +165,7 @@ Pages.settings = {
     const self = this;
     showSheet(t('settings_log_level'), (body) => {
       ['debug', 'info', 'warning', 'error'].forEach((v) => {
-        body.appendChild(choiceRow(v, App.settings.coreLogLevel === v, async () => {
+        body.appendChild(choiceRow(t('logs_level_' + v) || v, App.settings.coreLogLevel === v, async () => {
           await self.save({ coreLogLevel: v });
           closeSheet();
         }));

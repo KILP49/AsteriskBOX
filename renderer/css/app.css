@@ -208,11 +208,11 @@ body.narrow #topbar { padding-left: 16px; padding-right: 16px; }
 .switch { position: relative; width: 52px; height: 32px; display: inline-block; cursor: pointer; flex: 0 0 52px; }
 .switch input { display: none; }
 .switch .track { position: absolute; inset: 0; border-radius: var(--radius-pill); background: var(--m3-surface-container-highest); border: 2px solid var(--m3-outline); transition: all 220ms var(--easing); }
-.switch .thumb { position: absolute; top: 4px; left: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--m3-outline); transition: all 220ms var(--easing); }
+.switch .thumb { position: absolute; top: 8px; left: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--m3-outline); transition: all 220ms var(--easing); }
 .switch input:checked + .track { background: var(--m3-primary); border-color: var(--m3-primary); box-shadow: 0 1px 6px color-mix(in srgb, var(--m3-primary) 40%, transparent); }
 .switch input:checked + .track + .thumb { left: 24px; background: var(--m3-on-primary); width: 24px; height: 24px; top: 4px; }
 .switch input:checked + .track + .thumb::after { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--m3-primary); }
-.switch input:not(:checked) + .track + .thumb { width: 16px; height: 16px; top: 4px; left: 4px; }
+.switch input:not(:checked) + .track + .thumb { width: 16px; height: 16px; top: 8px; left: 4px; }
 
 /* ---------------- Segmented control ---------------- */
 .seg { display: flex; background: var(--m3-surface-container-highest); border-radius: var(--shape-md); padding: 3px; width: 100%; box-shadow: inset 0 1px 3px rgba(0,0,0,.08); }
