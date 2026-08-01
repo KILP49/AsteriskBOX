@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
   enableLocalDns: true,
   vpnDns: '172.19.0.2',
   // 本地代理
-  localProxyPort: 2080,
+  localProxyPort: 3000,
   localProxyListenAll: false,
   localProxyUsername: '',
   localProxyPassword: '',

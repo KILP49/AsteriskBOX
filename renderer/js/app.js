@@ -218,7 +218,7 @@ function renderTopbar() {
   const bar = document.getElementById('topbar');
   bar.innerHTML = '';
   if (App.stack.length) {
-    bar.appendChild(el('button', { class: 'icon-btn', onclick: popRoute, text: 'arrow_back' }));
+    bar.appendChild(el('button', { class: 'icon-btn msr', onclick: popRoute, text: 'arrow_back' }));
   }
   const route = App.stack.length ? App.routes[App.stack[App.stack.length - 1].id] : null;
   const title = route ? route.title() : (App.page === 'home' ? 'AsteriskBOX' : t(App.navItems.find((n) => n.id === App.page).labelKey));
@@ -229,12 +229,12 @@ function renderTopbar() {
   if (!App.stack.length) {
     if (App.page === 'proxies') {
       bar.appendChild(el('button', {
-        class: 'icon-btn', title: t('sing_box_proxies_group_test'),
+        class: 'icon-btn msr', title: t('sing_box_proxies_group_test'),
         text: 'speed',
         onclick: () => Pages.proxies.testAll(),
       }));
       bar.appendChild(el('button', {
-        class: 'icon-btn', title: t('sing_box_proxies_options'),
+        class: 'icon-btn msr', title: t('sing_box_proxies_options'),
         text: 'tune',
         onclick: () => Pages.proxies.showOptions(),
       }));
@@ -299,7 +299,7 @@ async function startDataLoop() {
     App.appInfo = info;
     App.settings = await a.call('getSettings');
   } catch (e) {
-    App.settings = { colorMode: 0, seedIndex: 0, language: 2, runMode: 'tun', tunStack: 'mixed', tunMtu: 1500, enableIpv6: true, localProxyPort: 2080, coreLogLevel: 'info' };
+    App.settings = { colorMode: 0, seedIndex: 0, language: 2, runMode: 'tun', tunStack: 'mixed', tunMtu: 1500, enableIpv6: true, localProxyPort: 3000, coreLogLevel: 'info' };
   }
   App.t = makeT(resolveLang());
   window.t = App.t;

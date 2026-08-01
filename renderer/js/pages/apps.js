@@ -22,12 +22,12 @@ Pages.apps = {
     const directCount = App.connections.filter((c) => c.outboundType === 'Direct').length;
     head.appendChild(el('div', { class: 'muted small', text: `代理 ${allCount} · 直连 ${directCount}` }));
     head.appendChild(el('button', {
-      class: 'icon-btn', title: t('monitor_connections_close_all'),
+      class: 'icon-btn msr', title: t('monitor_connections_close_all'),
       text: 'close',
       onclick: () => this.closeAll(),
     }));
     head.appendChild(el('button', {
-      class: 'icon-btn', title: t('monitor_connections_pause'),
+      class: 'icon-btn msr', title: t('monitor_connections_pause'),
       text: 'pause',
       onclick: () => { this.live = !this.live; this.render(document.getElementById('content')); },
     }));
@@ -116,7 +116,7 @@ Pages.apps = {
         el('div', { text: '↑ ' + fmtBytes(c.upload || 0) }),
       ]),
       el('button', {
-        class: 'icon-btn', style: 'width:32px;height:32px', title: t('monitor_connections_close_one'),
+        class: 'icon-btn msr', style: 'width:32px;height:32px', title: t('monitor_connections_close_one'),
         text: 'close',
         onclick: () => this.closeOne(c.id),
       }),

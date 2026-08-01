@@ -92,7 +92,7 @@ App.routes.settings_local = {
           saveButton(t('common_save'), async () => {
             const a = api();
             await a.call('updateSettings', {
-              localProxyPort: parseInt(port.value, 10) || 2080,
+              localProxyPort: parseInt(port.value, 10) || 3000,
               localProxyListenAll: listenAll.querySelector('input').checked,
               localProxyUsername: user.value.trim(),
               localProxyPassword: pass.value,
@@ -156,22 +156,30 @@ App.routes.settings_sniffer = {
   },
 };
 
-/* ---------------- DNS settings ---------------- */
+/* ---------------- DNS settings (rewritten) ---------------- */
 App.routes.dns_settings = {
   title: () => t('dns_settings_title'),
   render(container) {
     const s = App.settings;
+    const a = api();
     const page = el('div', { class: 'page' });
     container.appendChild(page);
-    const servers = s.dnsServers || [];
-    // basic
-    const strategy = textInput(s.dnsStrategy || (s.ipv6Prefer ? 'prefer_ipv6' : s.enableIpv6 ? 'prefer_ipv4' : 'ipv4_only'));
+
+    // ---- basic card ----
+    const strategy = el('select');
+    ['prefer_ipv4', 'prefer_ipv6', 'ipv4_only', 'ipv6_only'].forEach((v) => {
+      const o = el('option', { value: v, text: v });
+      if ((s.dnsStrategy || (s.ipv6Prefer ? 'prefer_ipv6' : s.enableIpv6 ? 'prefer_ipv4' : 'ipv4_only')) === v) o.selected = true;
+      strategy.appendChild(o);
+    });
     const timeout = textInput(s.dnsTimeout || '10s');
+    const cache = textInput(s.dnsCacheCapacity || '');
     const optimistic = makeSwitch(s.dnsOptimistic, () => {});
     page.appendChild(el('div', { class: 'card' }, [
       el('div', { class: 'card-title', style: 'margin-bottom:12px', text: t('dns_section_basic') }),
       fieldRow(t('dns_strategy'), strategy, 'prefer_ipv4 / prefer_ipv6 / ipv4_only / ipv6_only'),
-      fieldRow(t('dns_timeout'), timeout),
+      fieldRow(t('dns_timeout'), timeout, '10s / 1m …'),
+      fieldRow(t('dns_cache'), cache, '0 = 禁用'),
       el('div', { class: 'sec-row', style: 'padding:12px 0' }, [
         el('div', { class: 'row-main' }, [
           el('div', { class: 'row-title', text: t('dns_optimistic') }),
@@ -180,51 +188,69 @@ App.routes.dns_settings = {
         optimistic,
       ]),
     ]));
-    // servers
+
+    // ---- servers card ----
+    const servers = s.dnsServers || [];
     const serverCard = el('div', { class: 'card', style: 'margin-top:16px' });
-    serverCard.appendChild(el('div', { class: 'card-title', style: 'margin-bottom:12px;display:flex;justify-content:space-between;align-items:center' }, [
+    serverCard.appendChild(el('div', { class: 'card-title', style: 'margin-bottom:4px;display:flex;justify-content:space-between;align-items:center' }, [
       el('span', { text: t('dns_servers') }),
-      el('button', { class: 'btn btn-tonal btn-icon', text: 'add', onclick: () => this.editServer(serverCard) }),
+      el('button', { class: 'btn btn-tonal btn-icon', text: 'add', title: t('dns_add_server'), onclick: () => this.editServer(serverCard) }),
     ]));
-    if (!servers.length) serverCard.appendChild(el('div', { class: 'empty', text: t('settings_dns_servers_empty') }));
-    servers.forEach((sv) => {
-      const tag = `__asteriskbox_dns_server_${sv.id}__`;
-      const isFinal = s.dnsFinal === tag;
-      serverCard.appendChild(el('div', { class: 'conn-row' }, [
-        el('div', { class: 'c-main' }, [
-          el('div', { class: 'c-target', text: sv.remarks || sv.server }),
-          el('div', { class: 'c-sub', text: `${sv.type} · ${sv.server}${sv.serverPort ? ':' + sv.serverPort : ''}${sv.detour ? ' · ' + sv.detour : ''}` }),
-        ]),
-        isFinal ? el('div', { class: 'c-rule', text: t('dns_final') }) : null,
-        el('button', { class: 'icon-btn', text: 'edit', style: 'width:32px;height:32px', onclick: () => this.editServer(serverCard, sv) }),
-        el('button', { class: 'icon-btn', text: 'delete', style: 'width:32px;height:32px', onclick: async () => {
-          const a = api();
-          await a.call('updateSettings', { dnsServers: servers.filter((x) => x.id !== sv.id) });
-          App.settings = await a.call('getSettings');
-          render();
-        } }),
-      ]));
-    });
+    if (!servers.length) {
+      serverCard.appendChild(el('div', { class: 'empty', text: t('settings_dns_servers_empty') }));
+    } else {
+      servers.forEach((sv) => {
+        const tag = `__asteriskbox_dns_server_${sv.id}__`;
+        const isFinal = s.dnsFinal === tag;
+        const subParts = [sv.type, sv.server + (sv.serverPort ? ':' + sv.serverPort : '')];
+        if (sv.path) subParts.push('path: ' + sv.path);
+        if (sv.detour) subParts.push('via ' + sv.detour.replace('__asteriskbox_global__', 'global'));
+        serverCard.appendChild(el('div', { class: 'conn-row', style: 'padding:12px 8px' }, [
+          el('button', {
+            class: 'icon-btn msr', style: 'width:36px;height:36px;flex:0 0 36px;color:' + (isFinal ? 'var(--m3-primary)' : 'var(--m3-on-surface-variant)'),
+            title: t('dns_set_final'), text: isFinal ? 'star' : 'star_outline',
+            onclick: async () => {
+              if (isFinal) return;
+              await a.call('updateSettings', { dnsFinal: tag });
+              App.settings = await a.call('getSettings');
+              render();
+            },
+          }),
+          el('div', { class: 'c-main' }, [
+            el('div', { class: 'c-target', text: sv.remarks || sv.server }),
+            el('div', { class: 'c-sub', text: subParts.join(' · ') }),
+          ]),
+          isFinal ? el('div', { class: 'c-rule', style: 'color:var(--m3-primary);background:color-mix(in srgb, var(--m3-primary) 12%, transparent)', text: t('dns_final') }) : null,
+          el('button', { class: 'icon-btn msr', text: 'edit', style: 'width:32px;height:32px', title: t('common_edit'), onclick: () => this.editServer(serverCard, sv) }),
+          el('button', { class: 'icon-btn msr', text: 'delete', style: 'width:32px;height:32px', title: t('common_delete'), onclick: async () => {
+            await a.call('updateSettings', { dnsServers: servers.filter((x) => x.id !== sv.id) });
+            App.settings = await a.call('getSettings');
+            render();
+          } }),
+        ]));
+      });
+    }
     page.appendChild(serverCard);
     page.appendChild(el('div', { style: 'display:flex;justify-content:flex-end;gap:8px;margin-top:16px' }, [
       el('button', { class: 'btn btn-text', text: t('common_cancel'), onclick: popRoute }),
       saveButton(t('common_save'), async () => {
-        const a = api();
         await a.call('updateSettings', {
           dnsTimeout: timeout.value.trim() || '10s',
+          dnsCacheCapacity: cache.value.trim(),
           dnsOptimistic: optimistic.querySelector('input').checked,
-          dnsStrategy: strategy.value.trim(),
+          dnsStrategy: strategy.value,
         });
         toast(t('common_copied') === '已复制' ? '已保存' : 'Saved');
         popRoute();
       }),
     ]));
   },
+
   editServer(serverCard, sv) {
     const s = App.settings;
     const servers = [...(s.dnsServers || [])];
     const isNew = !sv;
-    const remarks = textInput(sv ? sv.remarks : '', 'direct / proxy');
+    const remarks = textInput(sv ? sv.remarks : '');
     const type = el('select');
     ['udp', 'tcp', 'tls', 'https', 'quic', 'h3'].forEach((v) => {
       const o = el('option', { value: v, text: v });
@@ -234,24 +260,32 @@ App.routes.dns_settings = {
     });
     const server = textInput(sv ? sv.server : '');
     const port = numInput(sv ? sv.serverPort : '');
-    const detour = textInput(sv ? sv.detour : '');
+    const path = textInput(sv ? sv.path : '');
+    const detour = el('select');
+    [['', t('dns_server_detour') + ' —'], ['__asteriskbox_global__', 'global'], ['direct', 'direct']].forEach((pair) => {
+      const o = el('option', { value: pair[0], text: pair[1] });
+      if ((sv && sv.detour === pair[0]) || (!sv && pair[0] === '__asteriskbox_global__')) o.selected = true;
+      detour.appendChild(o);
+    });
     showSheet(t('dns_edit_server'), (body) => {
       body.appendChild(fieldRow(t('dns_server_remarks'), remarks));
       body.appendChild(fieldRow(t('dns_server_type'), type));
       body.appendChild(fieldRow(t('dns_server_address'), server));
       body.appendChild(fieldRow(t('dns_server_port'), port));
-      body.appendChild(fieldRow(t('dns_server_detour'), detour, '__asteriskbox_global__'));
+      body.appendChild(fieldRow(t('dns_server_path'), path, 'tls / https / quic / h3'));
+      body.appendChild(fieldRow(t('dns_server_detour'), detour));
     }, {
       confirmText: t('common_save'),
       onConfirm: async () => {
         if (!server.value.trim()) { toast(t('settings_dns_server_address_invalid'), true); return; }
         const a = api();
+        const clean = (v) => (v === undefined || v === null ? '' : v);
         if (isNew) {
           const newId = Math.max(0, ...servers.map((x) => x.id)) + 1;
-          servers.push({ id: newId, remarks: remarks.value.trim() || `server-${newId}`, type: type.value, server: server.value.trim(), serverPort: port.value, detour: detour.value.trim() });
+          servers.push({ id: newId, remarks: remarks.value.trim() || `server-${newId}`, type: type.value, server: server.value.trim(), serverPort: clean(port.value), path: clean(path.value.trim()), detour: detour.value || '' });
         } else {
           const idx = servers.findIndex((x) => x.id === sv.id);
-          servers[idx] = { ...sv, remarks: remarks.value.trim(), type: type.value, server: server.value.trim(), serverPort: port.value, detour: detour.value.trim() };
+          servers[idx] = { ...sv, remarks: remarks.value.trim(), type: type.value, server: server.value.trim(), serverPort: clean(port.value), path: clean(path.value.trim()), detour: detour.value || '' };
         }
         await a.call('updateSettings', { dnsServers: servers });
         App.settings = await a.call('getSettings');
@@ -325,14 +359,14 @@ App.routes.routing_rules = {
 App.routes.endpoints = {
   title: () => t('endpoints_title'),
   actions(bar) {
-    bar.appendChild(el('button', { class: 'icon-btn', text: 'add', onclick: () => this.add() }));
+    bar.appendChild(el('button', { class: 'icon-btn msr', text: 'add', onclick: () => this.add() }));
     bar.appendChild(el('button', {
-      class: 'icon-btn', text: 'content_paste',
+      class: 'icon-btn msr', text: 'content_paste',
       title: t('endpoints_import_text'),
       onclick: () => this.importClipboard(),
     }));
     if (App.profile.subscriptions.length > 1) {
-      bar.appendChild(el('button', { class: 'icon-btn', text: 'refresh', title: t('endpoints_update_all'), onclick: () => this.updateAll() }));
+      bar.appendChild(el('button', { class: 'icon-btn msr', text: 'refresh', title: t('endpoints_update_all'), onclick: () => this.updateAll() }));
     }
   },
   render(container) {
@@ -354,11 +388,11 @@ App.routes.endpoints = {
         el('div', { class: 'row-sub', text: `${count} 节点 · ${updated}` }),
       ]));
       row.appendChild(el('button', {
-        class: 'icon-btn', text: 'refresh', style: 'width:32px;height:32px', title: t('common_update'),
+        class: 'icon-btn msr', text: 'refresh', style: 'width:32px;height:32px', title: t('common_update'),
         onclick: async (e) => { e.stopPropagation(); await this.updateOne(sub); },
       }));
       row.appendChild(el('button', {
-        class: 'icon-btn', text: 'delete', style: 'width:32px;height:32px', title: t('endpoints_delete'),
+        class: 'icon-btn msr', text: 'delete', style: 'width:32px;height:32px', title: t('endpoints_delete'),
         onclick: (e) => {
           e.stopPropagation();
           showDialog({
@@ -462,11 +496,11 @@ App.routes.outbounds = {
         el('div', { class: 'row-sub', text: `${o.type}${server ? ' · ' + server : ''}` }),
       ]));
       row.appendChild(el('button', {
-        class: 'icon-btn', text: 'edit_note', style: 'width:32px;height:32px', title: t('outbounds_edit_json'),
+        class: 'icon-btn msr', text: 'edit_note', style: 'width:32px;height:32px', title: t('outbounds_edit_json'),
         onclick: (e) => { e.stopPropagation(); this.editJson(o); },
       }));
       row.appendChild(el('button', {
-        class: 'icon-btn', text: 'delete', style: 'width:32px;height:32px', title: t('outbounds_delete'),
+        class: 'icon-btn msr', text: 'delete', style: 'width:32px;height:32px', title: t('outbounds_delete'),
         onclick: (e) => {
           e.stopPropagation();
           showDialog({
@@ -517,7 +551,7 @@ function typeIcon(type) {
 App.routes.resources = {
   title: () => t('resources_title'),
   actions(bar) {
-    bar.appendChild(el('button', { class: 'icon-btn', text: 'refresh', title: t('resources_update_all'), onclick: () => this.update() }));
+    bar.appendChild(el('button', { class: 'icon-btn msr', text: 'refresh', title: t('resources_update_all'), onclick: () => this.update() }));
   },
   render(container) {
     const page = el('div', { class: 'page' });
@@ -572,8 +606,8 @@ App.routes.core_logs = {
   paused: false,
   lines: [],
   actions(bar) {
-    bar.appendChild(el('button', { class: 'icon-btn', text: 'pause', onclick: () => { this.paused = !this.paused; render(); } }));
-    bar.appendChild(el('button', { class: 'icon-btn', text: 'download', title: t('logs_export'), onclick: async () => { await api().call('exportLogs'); toast(t('logs_exported')); } }));
+    bar.appendChild(el('button', { class: 'icon-btn msr', text: 'pause', onclick: () => { this.paused = !this.paused; render(); } }));
+    bar.appendChild(el('button', { class: 'icon-btn msr', text: 'download', title: t('logs_export'), onclick: async () => { await api().call('exportLogs'); toast(t('logs_exported')); } }));
   },
   render(container) {
     const page = el('div', { class: 'page' });

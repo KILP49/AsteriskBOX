@@ -38,7 +38,7 @@ class DemoState {
       colorMode: 2, seedIndex: 0, language: 2, runMode: 'tun', autoConnect: false,
       tunStack: 'mixed', tunMtu: 1500, tunIpv4: '172.19.0.1/30', tunIpv6: 'fdfe:dcba:9876::1/126',
       enableIpv6: true, ipv6Prefer: false, enableLocalDns: true, vpnDns: '172.19.0.2',
-      localProxyPort: 2080, localProxyListenAll: false, localProxyUsername: '', localProxyPassword: '',
+      localProxyPort: 3000, localProxyListenAll: false, localProxyUsername: '', localProxyPassword: '',
       coreLogLevel: 'info', clashApiPort: 19090, snifferEnabled: true,
       snifferProtocols: ['http', 'tls', 'quic'], snifferTimeout: '300ms',
       dnsServers: [

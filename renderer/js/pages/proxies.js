@@ -65,7 +65,7 @@ Pages.proxies = {
         el('span', { class: 'g-type', text: g.type === 'Selector' || g.type === 'selector' ? t('proxies_group_selector') : t('proxies_group_urltest') }),
         el('div', { class: 'g-delay', style: this.delayStyle(delay) }, [this.delayText(g.name, delay, g)]),
         el('button', {
-          class: 'icon-btn', style: 'width:32px;height:32px', title: t('sing_box_proxies_group_test'),
+          class: 'icon-btn msr', style: 'width:32px;height:32px', title: t('sing_box_proxies_group_test'),
           text: 'speed',
           onclick: (e) => { e.stopPropagation(); this.testGroup(g); },
         }),
